@@ -33,10 +33,10 @@ class IdleClassAutocrat {
 		this.employeeSpendFraction = 0.999; // Default 0.999, willing to spend 99.9% on employees, RATIO VALUE, 0.67 = 67%
 		this.maxAllowableRisk = 0.0; // Default 0.0%, stops R&D hiring above this risk value, PERCENTAGE VALUE, 67.0 = 67%
 		this.acquisitionStopHiringFraction = 0.666; // Default 0.666, stops hiring acq employees at less than 66.6% workers remaining, RATIO VALUE, 0.67 = 67%
-		this.bankruptcyResetFraction = 0.1; // Default 0.1, makes every bankruptcy 110%, RATIO VALUE, 0.67 = 67%
+		this.bankruptcyResetFraction = 1.0; // Default 1.0, makes every bankruptcy 200%, RATIO VALUE, 0.67 = 67%
 		
 		// ONES WITH LISTS OF WORDS AND PHRASES CAN BE EDITED OR ADDED TO IF YOU FANCY
-		this.autoBusinessWords = ['synergy', 'downsize', 'bandwidth', 'stakeholders', 'shareolders', 'clients', 'customers', 'profits', 'ROI', 'ideate', 'ideation', 'globalization', 'evergreen', 'disruptive', 'disrupt', 'innovation', 'innovate', 'dynamism', 'millennial', 'holistic', 'paradigm', 'wheelhouse', 'B2B', 'B2C', 'analytics', 'brand', 'branding', 'hyperlocal', 'optimization', 'client', 'customer', 'profit', 'outsourcing', 'outsource', 'startup', 'marketing', 'sales', 'agile', 'mission', 'executive', 'stocks', 'investments', 'investment', 'shares', 'valuation',  'investment', 'shareholders', 'BYOD', 'advertainment', 'marketing', 'deliverable', 'actionable', 'hacking', 'KPI', 'pivot', 'leverage', 'startup', 'downsizing', 'outsourcing', 'unicorn', 'SEO', 'wunderkind', 'market', 'EBITDA', 'ASAP', 'EOD', 'actionable', 'action', 'influencer', 'CTR', 'gamified', 'gamification', 'revenue', 'overhead'];
+		this.autoBusinessWords = ["ASAP", "B2B", "B2C", "BYOD", "CTR", "EBITDA", "EOD", "KPI", "ROI", "SEO", "SAAS", "accelerator", "action", "advertainment", "agile", "analytic", "bandwidth", "ballpark", "best practice", "blue sky thinking", "boot strap", "bootstrap", "brand", "bubble", "cash flow", "churn rate", "circle back", "client", "content marketing", "crowdfund", "crowdsource", "customer", "deep dive", "deliverable", "digital nomad", "disrupt", "downsiz", "drill down", "dynamism", "early adopter", "end-user", "end user", "enterprise", "equity", "evangelist", "evergreen", "executive", "exit strategy", "freemium", "gamification", "gamified", "globalization", "growth hack", "golden parachute", "hacking", "holistic", "hyperlocal", "ideat", "influencer", "innovat", "intellectual property", "invest", "iterat", "layoff", "leverage", "market", "millennial", "mission", "monetiz", "moving forward", "optimiz", "outsourc", "overhead", "paradigm", "pivot", "profit", "redundanc", "revenue", "sale", "scaleable", "share", "shareholder", "stakeholder", "startup", "stock", "synergy", "thought leader", "trim the fat", "unicorn", "valuation", "visionary", "wheelhouse", "wunderkind"];
 		this.autoChatPhrases = ["... Are you seriously wasting my time like this?", ", I really don't want to hear about it.", ", do you feel ready to fire your friends?", ", you put our glorious company to shame.", "!! Guess what?? You are an ass!", ", have you considered getting back to work?", ": I love hearing from you, almost as much as I hate it.", " is such a freakin tool, I mean really, they... oh ww lol!", " -- this better be good news.", ": ¯\_(ツ)_/¯", ", hold on, I'm playing this idle game called The Idle Class", ", hold on, my Trimps are just about to hit my target zone...", "!! Guess what?? Hevipelle eats ass!"];
 		// Shamelessly stolen from game code
 		this.firstNames = [ 'John', 'Jane', 'Steve', 'Bill', 'Mark', 'Sheryl', 'Larry', 'Travis', 'George', 'Marissa', 'Jeff', 'Ken', 'Dara', 'Richard' ];
@@ -124,9 +124,13 @@ class IdleClassAutocrat {
 				this.currMail = game.mail()[i];
 				// EMAIL CHEAT: You can uncomment the following line to exploit emails
 				if(this.currMail.replied() === true) { continue; }
-				this.currMail.inputText(this.currMail.from + ",");
-				while(this.currMail.inputText().length < 180) {
-					this.currMail.inputText(this.currMail.inputText() + " " + this.randomBizWord());
+				if(this.currMail.from !== "B2B B2C CTR EOD KPI ROI SEO")
+				{
+				let mailtext = this.currMail.from + " B2B B2C CTR EOD KPI ROI SEO ASAP BYOD SAAS sale agile brand ideat pivot share stock EBITDA action bubble client equity invest iterat layoff market profit disrupt downsiz hacking innovat mission";
+				let mailtextrim = mailtext.substring(0,200);
+				this.currMail.inputText(mailtextrim);
+				}else{
+					this.currMail.inputText("B2B B2C CTR EOD KPI ROI SEO ASAP BYOD SAAS sale agile brand ideat pivot share stock EBITDA action bubble client equity invest iterat layoff market profit disrupt downsiz hacking innovat mission")
 				}
 				// Uncomment to catch what these actually are in console, for funsies :)        
 				//console.log("" + this.currMail.inputText());
@@ -140,24 +144,33 @@ class IdleClassAutocrat {
 				this.currOutgoing = game.composedMail();
 				if(this.currOutgoing.stressLevel.val() > 50) {
 					// Human Resources
-					this.currOutgoing.selectedDepartment('3');
+					this.currOutgoing.selectedDepartment('4');
 				} else {
-					// Random other. 0 = investments, 1 = r&d, 2 = acquisitions. R&D is available before investments.
+					// Random other. 0 = investments, 1 = r&d, 2 = acquisitions, 3 = training. R&D is available before investments.
 					let r = Math.random();
-					// No acquisitions; constrain to [0...0.666], or 1 or 0
-					if(game.activeInvestments().length === 0) { r = r * 0.666; }
-					// No investments; additionally constrain to [0...0.333], or just 1
-					if(game.activeInvestments().length === 0) { r = r * 0.5; }
-					this.currOutgoing.selectedDepartment((r <= 0.333) ? '1' : ((r <= 0.666) ? '0' : '2'));
+					//check for trainings
+					let activeTrainings = 0;
+					for (let i = 0; i < game.units().length; i++)
+					{
+						if(game.units()[i].trainingActive()){
+							activeTrainings++;
+						};
+					};
+					var choice = ["1"];
+					// check for traing
+					if(activeTrainings !== 0) { choice.push("3"); }
+					// check for acq
+					if(game.activeAcquisitions().length !== 0) { choice.push("2"); }
+					// check for investments
+					if(game.activeInvestments().length !== 0) { choice.push("0"); }
+					this.currOutgoing.selectedDepartment(choice[Math.floor(Math.random()*choice.length)]);
 					r = Math.random();
 					this.currOutgoing.selectedUrgency((r <= 0.333) ? '1' : ((r <= 0.666) ? '0' : '2'));
 				}
-				let rando = this.randomName();
-				this.currOutgoing.to(rando);
-				this.currOutgoing.subject(rando + this.randomDialogue());
-				while(this.currOutgoing.message().length < 180) { 
-					this.currOutgoing.message(this.currOutgoing.message() + " " + this.randomBizWord());
-				}
+				//let rando = this.randomName();
+				this.currOutgoing.to("B2B B2C CTR EOD KPI ROI SEO");
+				this.currOutgoing.subject("B2B B2C CTR EOD KPI ROI SEO");
+				this.currOutgoing.message("B2B B2C CTR EOD KPI ROI SEO ASAP BYOD SAAS sale agile brand ideat pivot share stock EBITDA action bubble client equity invest iterat layoff market profit disrupt downsiz hacking innovat mission");
 				setTimeout(this.autoSendMail, 2000);
 				setTimeout(this.autoStopWaitingForMail, 5000);
 			}	
@@ -399,7 +412,7 @@ class IdleClassAutocrat {
 				case 5: // Wait until bankruptcy, then wait for conditions, before declaring bankruptcy and restarting loop.
 					if(game.locked().mail === true) { this.currProcess = 0; break; }
 					if(game.locked().bankruptcy === true) { break; }
-					if(game.nextBankruptcyBonus.val() > game.stats()[this.currentBankruptcyStatsIndex].val() * this.bankruptcyResetFraction) {
+					if(game.nextBankruptcyBonus.val() > game.stats[this.currentBankruptcyStatsIndex].val() * this.bankruptcyResetFraction) {
 						this.currProcess = 0;
 						game.restartGame();
 					}
