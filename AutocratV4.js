@@ -1,3 +1,7 @@
+// uncomment for development purposes, using the original game files from https://www.smallgraygames.com/the-idle-class
+import 'game/game.js';
+import 'game/main.js';
+
 "use strict";
 // The Idle Class Autocrat
 // made with luv by argembarger
